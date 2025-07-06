@@ -1,5 +1,6 @@
 import json
 import re
+from functools import partial
 from typing import TYPE_CHECKING, Callable, Dict, List, Pattern, Sequence, Union, cast
 
 from .loaders import BaseLoader, DictLoader
@@ -62,7 +63,10 @@ class PydanticI18n:
         # or } (especially if the lookup above failed and we use the un-translated
         # message)
         if placeholder_values:
-            message_translated = message_translated.format(*placeholder_values)
+            __tr = partial(self._translate, locale=locale)
+            message_translated = message_translated.format(
+                *map(__tr, placeholder_values)
+            )
         return message_translated
 
     @property
