@@ -3,9 +3,9 @@ from typing import Dict, Tuple
 
 import pytest
 from _pytest.fixtures import FixtureRequest
-
 from pydantic import BaseModel, Field, ValidationError
 from pydantic.color import Color
+
 from pydantic_i18n import BaseLoader, DictLoader, PydanticI18n
 
 translations = {
@@ -300,3 +300,20 @@ def test_without_search_by_error_type():
     assert (
         translated_errors[0]["msg"] != translations["de_DE"][e.value.errors()[0]["msg"]]
     )
+
+
+def test_translate_placeholder():
+    _translations = {
+        "en_US": {
+            "Input should be a valid number": "This should be a translate",
+            "{}, unable to parse string as a number": "{}, with more explaination",
+        },
+    }
+
+    tr = PydanticI18n(_translations)
+
+    locale = "en_US"
+    message = "Input should be a valid number, unable to parse string as a number"
+
+    translated_message = tr._translate(message, locale)
+    assert translated_message == "This should be a translate, with more explaination"
